@@ -24,7 +24,7 @@ export const register = async (req, res) => {
         const newUser = new User({ username, email, password: hashedPassword });
 
         // Jwt Token
-        generateTokenAndCookies(res, newUser._id)
+        generateTokenAndCookies(res, newUser._id, newUser.isAdmin)
 
         await newUser.save();
         return res.status(201).json({
@@ -58,7 +58,7 @@ export const login = async (req, res) => {
         if (!isMatch) return res.status(401).json({ success: false, message: "Invalid credentials" })
 
         // token
-        generateTokenAndCookies(res, user._id)
+        generateTokenAndCookies(res, user._id, user.isAdmin)
 
         return res.status(201).json({
             success: true,
@@ -70,5 +70,21 @@ export const login = async (req, res) => {
             success: false,
             message: "Error in login controller"
         });
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        res.clearCookie("token", req.cookies.token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: '/'
+        });
+
+        res.status(200).json({ success: true, message: "Logged out successfully" })
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error in Logout Controller", error: error.message });
     }
 }
