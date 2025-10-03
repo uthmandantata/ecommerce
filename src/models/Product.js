@@ -12,21 +12,26 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    img: {
-        type: String,
-        default: ""
-    },
-    categories: {
-        type: Array
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
+        required: true
     },
     size: {
-        type: String
+        type: String,
+        required: true
     },
     color: {
-        type: String
+        type: String,
+        required: true
     },
     price: {
         type: String,
+        required: true
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
 
