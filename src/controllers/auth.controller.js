@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import bcrypt from "bcryptjs"
+import { generateTokenAndCookies } from '../utils/generateTokenAndCookie.js';
 
 export const register = async (req, res) => {
     try {
@@ -40,3 +41,34 @@ export const register = async (req, res) => {
         })
     }
 };
+
+export const login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(401).json({ success: false, message: "All fields are required!" })
+        }
+        const user = await User.findOne({ username })
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User does not exist" })
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password)
+
+        if (!isMatch) return res.status(401).json({ success: false, message: "Invalid credentials" })
+
+        // token
+        generateTokenAndCookies(res, user._id)
+
+        return res.status(201).json({
+            success: true,
+            message: `Welcome back ${user.username}!`
+        })
+    } catch (error) {
+        console.log("Error in login controller: ", error)
+        return res.status(500).json({
+            success: false,
+            message: "Error in login controller"
+        });
+    }
+}
