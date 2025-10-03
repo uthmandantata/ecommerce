@@ -26,8 +26,15 @@ export const myprofile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
+        const user = req.user
         const { username, email, password } = req.body;
-        const myProfile = await User.findById(req.user._id)
+        if (user !== req.params.id) {
+            return res.status(400).json({
+                success: true,
+                message: "You are not authorized to take this action!!"
+            })
+        }
+        const myProfile = await User.findById(user._id)
         if (username) myProfile.username = username;
         if (email) myProfile.email = email;
         if (password) {
@@ -57,6 +64,21 @@ export const updateProfile = async (req, res) => {
 
 export const deleteProfile = async (req, res) => {
     try {
+        const userId = req.user.id
+        if (userId !== req.params.id) return res.status(400).json({ success: false, message: "You are not authorized to do this!" });
+
+        await User.findByIdAndDelete(userId)
+
+        res.clearCookie("token", req.cookies.token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: '/'
+        });
+        return res.status(200).json({
+            success: true,
+            message: "User profile deleted!"
+        })
 
     } catch (error) {
         console.log("Error in myProfile controller", error);
