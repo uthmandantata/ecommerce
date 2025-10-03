@@ -19,7 +19,7 @@ export const protect = async (req, res, next) => {
         next();
     } catch (error) {
         console.log("Error in protect middleware:", error);
-        return res.status(401).json({
+        return res.status(500).json({
             success: false,
             message: "Not authorized, token failed"
         });
@@ -60,3 +60,23 @@ export const isLoggedIn = async (req, res, next) => {
 
     }
 };
+
+
+export const isAdmin = async (req, res, next) => {
+    try {
+        if (req.user && req.user.isAdmin) {
+            return next()
+        }
+
+        return res.status(401).json({
+            success: false,
+            message: "Not authorized!"
+        });
+    } catch (error) {
+        console.log("Error in protect middleware:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Not authorized, token failed"
+        });
+    }
+}

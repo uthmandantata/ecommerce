@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { dbConnect } from "./config/db.js";
 import cookieParser from "cookie-parser";
 import authRoutes from './routes/auth.router.js'
+import userRoutes from './routes/user.router.js'
 
 
 
@@ -17,7 +18,8 @@ const PORT = process.env.PORT;
 app.use(express.json());
 
 // Router
-app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 
 // Run app
