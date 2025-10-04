@@ -111,7 +111,7 @@ export const updateProduct = async (req, res) => {
             });
         }
         if (!productExist) {
-            return res.status(404).status({ success: false, message: "Product does not exist!" })
+            return res.status(404).json({ success: false, message: "Product does not exist!" })
         }
         if (title) productExist.title = title;
         if (desc) productExist.desc = desc;

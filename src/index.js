@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.router.js'
 import userRoutes from './routes/user.router.js'
 import productRoutes from './routes/product.router.js'
 import categoryRoutes from './routes/category.router.js'
+import orderRoutes from './routes/order.router.js'
 
 
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 
 // Run app
