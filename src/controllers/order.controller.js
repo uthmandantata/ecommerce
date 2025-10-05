@@ -1,12 +1,19 @@
+import Cart from "../models/Cart.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 
 
 
-export const createOrder = async (req, res) => {
+export const checkout = async (req, res) => {
     try {
-        const { products, amount, address } = req.body;
-        if (!products || !amount || !address) return res.status(400).json({ success: false, message: "All fields are required!" });
+        const { address } = req.body;
+        const userId = req.user;
+        const myCart = await Cart.findOne({ userId: userId })
+        const products = myCart?.products
+
+        if (!myCart) return res.status(404).json({ success: false, message: "Nothing in your cart!" });
+
+        if (!address) return res.status(400).json({ success: false, message: "All fields are required!" });
 
 
         const productStock = await Promise.all(
@@ -26,9 +33,17 @@ export const createOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "One or more products are invalid or out of stock" });
         }
 
-        const newOrder = new Order({ userId: req.user._id, products, amount, address })
+        let totalAmount = 0;
+        for (let item of products) {
+            const product = await Product.findById(item.productId);
+            if (!product) continue
+            totalAmount += product.price * item.quantity
+        }
+
+        const newOrder = new Order({ userId, products, amount: totalAmount, address })
 
         await newOrder.save()
+        await Cart.findByIdAndDelete(myCart._id)
 
         return res.status(201).json({
             success: true,
