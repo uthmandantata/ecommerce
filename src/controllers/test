@@ -1,0 +1,37 @@
+// Get all orders
+        const totalOrders = await Order.countDocuments();
+        // Total revenue (only from completed orders)
+        const revenueAgg = await Order.aggregate([
+            { $match: { status: "completed" } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
+        ]);
+        const totalRevenue = revenueAgg[0]?.total || 0;
+
+        const productsSold = await Order.aggregate([
+            { $unwind: "$products" }, // break each order’s products array into individual docs
+            {
+                $group: {
+                    _id: "$products.productId", // group by productId
+                    totalQuantity: { $sum: "$products.quantity" } // sum the quantity
+                }
+            }
+        ]);
+
+        const totalProductsSoldAgg = await Order.aggregate([
+            { $unwind: "$products" },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: "$products.quantity" }
+                }
+            }
+        ]);
+
+        const totalProductsSold = totalProductsSoldAgg[0]?.total || 0;
+
+
+        const totalCustomers = (await Order.distinct("userId")).length;
+        const totalUsers = await User.countDocuments();
+        // Orders by status
+        const pendingOrders = await Order.countDocuments({ status: "pending" });
+        const completedOrders = await Order.countDocuments({ status: "completed" });

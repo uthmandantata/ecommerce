@@ -88,3 +88,28 @@ export const deleteProfile = async (req, res) => {
         })
     }
 }
+
+export const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.id
+        if (userId === req.user.id) return res.status(400).json({ success: false, message: "Admin cannot remove himself/hersefl!" })
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ success: false, message: "User does not Exisit!" });
+
+
+        await User.findByIdAndDelete(userId)
+
+
+        return res.status(200).json({
+            success: true,
+            message: "User deleted!"
+        })
+
+    } catch (error) {
+        console.log("Error in deleteUser controller", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error in deleteUser controller"
+        })
+    }
+}
